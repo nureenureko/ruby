@@ -1,0 +1,138 @@
+$grid = Array.new(32){ Array.new(32)}
+def check(row,n)
+  stop = 1
+  for i in 0..n-1
+    xrow = row[i].count "x"
+    if xrow != 0
+      stop = 0
+      break
+    end
+  end
+  return stop
+end
+
+def play(row,current,n)
+  table = ""
+  sqrn = Integer.sqrt(n)
+  if current[0] == "row"
+    
+    for i in 0..n-1
+    table = ""
+      if row[current[1]][i] == 'x'
+        for j in 1..n
+          haverow = row[current[1]].count j.to_s
+          
+          if haverow == 0 
+            for k in 0..n-1
+              if row[k][i] != 'x'
+                table += row[k][i]
+              end
+            end
+
+            havecol = table.count j.to_s
+            tempi = current[1]/sqrn
+            tempj = i/sqrn
+            havegrid = $grid[tempi][tempj].count j.to_s
+
+            if havecol == 0 && havegrid == 0
+              row[current[1]][i] = row[current[1]][i].replace j.to_s
+              table += j.to_s
+              $grid[tempi][tempj] += j.to_s
+              break
+            end  
+          end
+        end
+      end
+    end
+
+  elsif current[0] == "col"
+
+    for i in 0..n-1
+      if row[i][current[1]] != 'x'
+        table += row[i][current[1]]
+      end
+    end
+
+    for i in 0..n-1
+      if row[i][current[1]] == 'x'
+        for j in 1..n
+          haverow = row[i].count j.to_s
+          if haverow == 0
+            havecol = table.count j.to_s
+            tempi = i/sqrn
+            tempj = current[1]/sqrn
+            havegrid = $grid[tempi][tempj].count j.to_s
+            if havecol == 0 && havegrid == 0
+              row[i][current[1]] = row[i][current[1]].replace j.to_s
+              table += j.to_s
+              $grid[tempi][tempj] += j.to_s
+              break
+            end
+          end
+        end
+      end 
+    end
+  end
+
+  return row
+end
+
+mn = gets.delete " "
+n = mn[0].to_i
+row = Array.new()
+stop = 0
+
+for i in 0..n-1
+  row[i] = gets.delete " "
+end
+
+sqrn = Integer.sqrt(n)
+for i in 0..sqrn-1
+  for j in 0..sqrn-1
+    $grid[i][j] = ""
+  end
+end
+
+for i in 0..n-1
+  for j in 0..n-1
+    if row[i][j] != 'x'
+      tempi = i/sqrn
+      tempj = j/sqrn
+      $grid[tempi][tempj] += row[i][j]
+    end
+  end
+end
+
+while stop != 1 do
+  xmin = n
+  for i in 0..n-1
+    xcol = 0
+    xrow = row[i].count "x"
+   
+    for j in 0..n-1
+      if row[j][i] == 'x'
+        xcol += 1
+      end
+    end
+  
+    if xmin > xrow && xrow != 0
+      xmin = xrow
+      current = ["row",i,xmin]
+    end
+    if xmin > xcol && xcol != 0
+      xmin = xcol
+      current = ["col",i,xmin]
+    end
+    if xmin == 1
+      break
+    end
+  end
+
+  row = play(row,current,n)
+  stop = check(row,n)
+end
+
+print ' '
+for i in 0..n-1
+  row[i].each_char{|c| print c, ' '}
+end
